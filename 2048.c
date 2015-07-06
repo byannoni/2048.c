@@ -16,27 +16,9 @@
 #include <stdint.h>
 #include <time.h>
 #include <signal.h>
-#include <limits.h>
 
 #define SIZE 4
-static uint32_t score=0;
-
-void getColor(uint16_t, char *, size_t);
-void drawBoard(uint16_t [SIZE][SIZE]);
-int8_t findTarget(uint16_t [SIZE], int8_t, int8_t);
-bool slideArray(uint16_t [SIZE]);
-void rotateBoard(uint16_t [SIZE][SIZE]);
-bool moveUp(uint16_t [SIZE][SIZE]);
-bool moveLeft(uint16_t [SIZE][SIZE]);
-bool moveDown(uint16_t [SIZE][SIZE]);
-bool moveRight(uint16_t [SIZE][SIZE]);
-bool findPairDown(uint16_t [SIZE][SIZE]);
-int16_t countEmpty(uint16_t [SIZE][SIZE]);
-bool gameEnded(uint16_t [SIZE][SIZE]);
-void addRandom(uint16_t [SIZE][SIZE]);
-void setBufferedInput(bool);
-int test(void);
-void signal_callback_handler(int);
+uint32_t score=0;
 
 void getColor(uint16_t value, char *color, size_t length) {
 	uint8_t original[] = {8,255,1,255,2,255,3,255,4,255,5,255,6,255,7,255,9,0,10,0,11,0,12,0,13,0,14,0,255,0,255,0};
@@ -75,7 +57,7 @@ void drawBoard(uint16_t board[SIZE][SIZE]) {
 			if (board[x][y]!=0) {
 				char s[8];
 				snprintf(s,8,"%u",board[x][y]);
-				int8_t t = (int8_t)(7 - strlen(s));
+				int8_t t = 7-strlen(s);
 				printf("%*s%s%*s",t-t/2,"",s,t/2,"");
 			} else {
 				printf("   ·   ");
@@ -234,12 +216,12 @@ bool gameEnded(uint16_t board[SIZE][SIZE]) {
 
 void addRandom(uint16_t board[SIZE][SIZE]) {
 	static bool initialized = false;
-	uint16_t x,y;
-	uint16_t r,len=0;
+	int8_t x,y;
+	int16_t r,len=0;
 	uint16_t n,list[SIZE*SIZE][2];
 
 	if (!initialized) {
-		srand(time(NULL) % UINT_MAX);
+		srand(time(NULL));
 		initialized = true;
 	}
 
@@ -278,7 +260,7 @@ void setBufferedInput(bool enable) {
 		// we want to keep the old setting to restore them at the end
 		old = new;
 		// disable canonical mode (buffered i/o) and local echo
-		new.c_lflag &=(tcflag_t)(~ICANON & ~ECHO);
+		new.c_lflag &=(~ICANON & ~ECHO);
 		// set the new settings immediately
 		tcsetattr(STDIN_FILENO,TCSANOW,&new);
 		// set the new state
@@ -286,7 +268,7 @@ void setBufferedInput(bool enable) {
 	}
 }
 
-int test(void) {
+int test() {
 	uint16_t array[SIZE];
 	uint16_t data[] = {
 		0,0,0,2,	2,0,0,0,
@@ -374,7 +356,7 @@ int main(int argc, char *argv[]) {
 	drawBoard(board);
 	setBufferedInput(false);
 	while (true) {
-		c=(char)getchar();
+		c=getchar();
 		switch(c) {
 			case 97:	// 'a' key
 			case 104:	// 'h' key
@@ -407,7 +389,7 @@ int main(int argc, char *argv[]) {
 		if (c=='q') {
 			printf("        QUIT? (y/n)         \n");
 			while (true) {
-			c=(char)getchar();
+			c=getchar();
 				if (c=='y'){
 					setBufferedInput(true);
 					printf("\033[?25h");
@@ -422,7 +404,7 @@ int main(int argc, char *argv[]) {
 		if (c=='r') {
 			printf("       RESTART? (y/n)       \n");
 			while (true) {
-			c=(char)getchar();
+			c=getchar();
 				if (c=='y'){
 					memset(board,0,sizeof(board));
 					addRandom(board);
